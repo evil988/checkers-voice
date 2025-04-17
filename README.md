@@ -38,4 +38,4 @@ checkers_voice_project/
 
 ---
 
-Desenvolvido por [evil1988](https://github.com/evil1988)
+Desenvolvido por [evil988](https://github.com/evil988)
