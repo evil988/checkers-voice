@@ -40,23 +40,34 @@ class CheckersGame:
         pygame.display.flip()
 
     def mover_por_comando(self, comando):
-        # Exemplo de comando: "mover linha 2 coluna 3"
+        print(f"Recebido comando: {comando}")
         palavras = comando.split()
         if len(palavras) == 5 and palavras[0] in ['mover'] and palavras[1] == 'linha' and palavras[3] == 'coluna':
+            print("Formato do comando reconhecido corretamente")
             try:
                 linha = int(palavras[2]) - 1
                 coluna = int(palavras[4]) - 1
+                print(f"Posição interpretada: linha={linha}, coluna={coluna}")
                 if 0 <= linha < 8 and 0 <= coluna < 8:
                     peca = self.tabuleiro[linha][coluna]
+                    print(f"Valor da peça na posição: {peca}")
                     if peca != 0:
                         nova_linha = linha - 1 if peca == 1 else linha + 1
+                        print(f"Tentando mover para linha {nova_linha}, coluna {coluna}")
                         if 0 <= nova_linha < 8 and self.tabuleiro[nova_linha][coluna] == 0:
                             self.tabuleiro[nova_linha][coluna] = peca
                             self.tabuleiro[linha][coluna] = 0
+                            print("Movimento realizado com sucesso")
+                        else:
+                            print("Nova posição inválida ou ocupada")
                     else:
                         print("posição sem peça")
+                else:
+                    print("Posição fora dos limites do tabuleiro")
             except ValueError:
-                pass
+                print("Erro ao converter linha ou coluna para inteiro")
+        else:
+            print("Comando inválido ou mal formatado")
 
     def rodar_jogo(self):
         while self.rodando:
@@ -67,4 +78,3 @@ class CheckersGame:
 
         pygame.quit()
         sys.exit()
-
