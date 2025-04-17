@@ -40,13 +40,19 @@ class CheckersGame:
         pygame.display.flip()
 
     def mover_por_comando(self, comando):
+        palavras_para_numeros = {
+            "um": 1, "dois": 2, "três": 3, "tres": 3, "quatro": 4,
+            "cinco": 5, "seis": 6, "sete": 7, "oito": 8,
+            "1": 1, "2": 2, "3": 3, "4": 4,
+            "5": 5, "6": 6, "7": 7, "8": 8
+        }
         print(f"Recebido comando: {comando}")
         palavras = comando.split()
         if len(palavras) == 5 and palavras[0] in ['mover'] and palavras[1] == 'linha' and palavras[3] == 'coluna':
             print("Formato do comando reconhecido corretamente")
             try:
-                linha = int(palavras[2]) - 1
-                coluna = int(palavras[4]) - 1
+                linha = palavras_para_numeros.get(palavras[2].lower(), -1) - 1
+                coluna = palavras_para_numeros.get(palavras[4].lower(), -1) - 1
                 print(f"Posição interpretada: linha={linha}, coluna={coluna}")
                 if 0 <= linha < 8 and 0 <= coluna < 8:
                     peca = self.tabuleiro[linha][coluna]
