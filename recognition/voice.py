@@ -2,8 +2,8 @@ import os, sys, json, pyaudio
 from vosk import Model, KaldiRecognizer
 
 # Palavras que queremos reconhecer
-numeros = ['um', 'dois', 'tres', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito']
-ordinais = ['primeira', 'segunda', 'terceira', 'quarta', 'quinta', 'sexta', 'setima', 'sétima', 'oitava']
+numeros = ['um', 'dois', 'tres', 'tres', 'quatro', 'cinco', 'seis', 'sete', 'oito']
+ordinais = ['primeira', 'segunda', 'terceira', 'quarta', 'quinta', 'sexta', 'setima', 'oitava']
 eixos = ['linha', 'coluna']
 
 # Gera combinações válidas de frases
