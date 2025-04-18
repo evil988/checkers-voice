@@ -8,13 +8,11 @@ from vosk import Model, KaldiRecognizer
 # Configuração das frases válidas
 # =========================
 numbers = ['um', 'dois', 'tres', 'quatro', 'cinco', 'seis', 'sete', 'oito']
-ordinals = ['primeira', 'segunda', 'terceira', 'quarta', 'quinta', 'sexta', 'setima', 'oitava']
 
 valid_phrases = []
-for row in numbers + ordinals:
-    for col in numbers + ordinals:
+for row in numbers:
+    for col in numbers:
         valid_phrases.append(f"linha {row} coluna {col}")
-        valid_phrases.append(f"{row} linha {col} coluna")
 
 grammar = json.dumps(valid_phrases)
 
@@ -43,7 +41,7 @@ stream.start_stream()
 # =========================
 # Loop de reconhecimento
 # =========================
-print("Fale algo como 'linha um coluna dois' ou 'segunda linha terceira coluna'...")
+print("Fale algo como 'linha um coluna dois'...")
 
 try:
     while True:
