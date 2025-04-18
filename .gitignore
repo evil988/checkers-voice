@@ -1,1 +1,19 @@
-venv/lib64
+# Bytecode e cache do Python
+__pycache__/
+*.py[cod]
+
+# Ambiente virtual
+venv/
+.env
+
+# Editor
+.vscode/
+
+# Modelos Vosk (pesados, não versionáveis)
+model/
+assets/model/
+
+# Arquivos temporários ou de testes
+*.log
+*.tmp
+.DS_Store
