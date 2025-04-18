@@ -10,14 +10,26 @@ Este projeto aplica **reconhecimento de voz ao jogo de damas** com o objetivo de
 
 ## ▶️ Como executar
 
-1. Instale as dependências:
+1. Clone o repositório:
+```bash
+git clone https://github.com/evil988/checkers-voice.git
+cd checkers-voice
+```
+
+2. Crie e ative um ambiente virtual:
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+3. Instale as dependências:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Certifique-se de que o modelo Vosk está em `assets/model/`. Você pode baixá-lo [aqui](https://alphacephei.com/vosk/models).
+4. Certifique-se de que o modelo Vosk está em `assets/model/`. Você pode baixá-lo [aqui](https://alphacephei.com/vosk/models).
 
-3. Execute o projeto:
+5. Execute o projeto:
 ```bash
 python3 main.py
 ```
@@ -29,13 +41,16 @@ python3 main.py
 ## 📁 Estrutura
 
 ```
-checkers_voice_project/
+checkers-voice/
 ├── main.py
 ├── recognition/        # Reconhecimento de voz (Vosk)
 ├── game/               # Jogo de damas (Pygame)
-└── assets/model/       # Modelo de linguagem Vosk
+├── tests/              # Testes isolados dos módulos
+├── assets/model/       # Modelo de linguagem Vosk
+└── requirements.txt
 ```
 
 ---
 
 Desenvolvido por [evil988](https://github.com/evil988)
+
