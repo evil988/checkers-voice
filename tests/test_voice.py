@@ -48,8 +48,17 @@ try:
         data = stream.read(8192, exception_on_overflow=False)
         if recognizer.AcceptWaveform(data):
             result = json.loads(recognizer.Result())
-            text = result.get("text", "")
+            text = result.get("text", "").strip()
             if text:
+                words = text.split()
+                if len(words) != 4:
+                    print("⚠️ Frase ignorada (formato inválido):", text)
+                    continue
+
+                if words[0] != "linha" or words[2] != "coluna" or words[1] not in numbers or words[3] not in numbers:
+                    print("⚠️ Frase ignorada (fora do padrão):", text)
+                    continue
+
                 print("✅ Comando reconhecido:", text)
 except KeyboardInterrupt:
     print("\nEncerrando reconhecimento de voz.")
