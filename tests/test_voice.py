@@ -39,30 +39,42 @@ stream = audio.open(format=pyaudio.paInt16,
 stream.start_stream()
 
 # =========================
-# Loop de reconhecimento
+# Função reutilizável para reconhecimento de voz
 # =========================
-print("Fale algo como 'linha um coluna dois'...")
+def escutar_comando():
+    data = stream.read(8192, exception_on_overflow=False)
+    if recognizer.AcceptWaveform(data):
+        result = json.loads(recognizer.Result())
+        text = result.get("text", "").strip()
+        if text:
+            print("🎧 Frase capturada:", text)
+            words = text.split()
+            if len(words) != 4:
+                print("⚠️ Frase ignorada (formato inválido, esperado 4 palavras):", words)
+                return None
+            if words[0] != "linha" or words[2] != "coluna":
+                print("⚠️ Frase ignorada (estrutura esperada: 'linha X coluna Y')")
+                return None
+            if words[1] not in numbers or words[3] not in numbers:
+                print("⚠️ Frase ignorada (números não reconhecidos):", words[1], words[3])
+                return None
+            print("✅ Frase válida detectada")
+            return text
+    return None
 
-try:
-    while True:
-        data = stream.read(8192, exception_on_overflow=False)
-        if recognizer.AcceptWaveform(data):
-            result = json.loads(recognizer.Result())
-            text = result.get("text", "").strip()
-            if text:
-                words = text.split()
-                if len(words) != 4:
-                    print("⚠️ Frase ignorada (formato inválido):", text)
-                    continue
-
-                if words[0] != "linha" or words[2] != "coluna" or words[1] not in numbers or words[3] not in numbers:
-                    print("⚠️ Frase ignorada (fora do padrão):", text)
-                    continue
-
-                print("✅ Comando reconhecido:", text)
-except KeyboardInterrupt:
-    print("\nEncerrando reconhecimento de voz.")
-finally:
-    stream.stop_stream()
-    stream.close()
-    audio.terminate()
+# =========================
+# Execução autônoma para testes
+# =========================
+if __name__ == "__main__":
+    print("Fale algo como 'linha um coluna dois'...")
+    try:
+        while True:
+            comando = escutar_comando()
+            if comando:
+                print("✅ Comando reconhecido:", comando)
+    except KeyboardInterrupt:
+        print("\nEncerrando reconhecimento de voz.")
+    finally:
+        stream.stop_stream()
+        stream.close()
+        audio.terminate()
