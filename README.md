@@ -27,30 +27,39 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. Certifique-se de que o modelo Vosk está em `assets/model/`. Você pode baixá-lo [aqui](https://alphacephei.com/vosk/models).
+4. Baixe um modelo Vosk e extraia para `assets/model/`. Modelos disponíveis em:
+[https://alphacephei.com/vosk/models](https://alphacephei.com/vosk/models)
 
-5. Execute o projeto:
+5. Execute o jogo com controle por voz:
 ```bash
-python3 main.py
+python voice_checkers.py
 ```
 
 ## 🎯 Comandos de voz aceitos
 
-- `mover linha dois coluna três` → move a peça da posição (2,3) para frente
+- `linha três coluna quatro` → destaca a casa (3,4)
+- Ao dizer outro comando válido em seguida, movimenta a peça da casa destacada para a nova casa.
+- `cancelar` → remove o destaque atual (se houver)
+
+## 🕹️ Funcionalidades atuais
+
+- Destaca casas via voz (ex: "linha dois coluna três")
+- Move peças por voz com regras básicas de movimento
+- Cancela seleção com o comando "cancelar"
+- Validação visual com destaque colorido
+- Feedback textual no terminal
 
 ## 📁 Estrutura
 
 ```
 checkers-voice/
-├── main.py
-├── recognition/        # Reconhecimento de voz (Vosk)
-├── game/               # Jogo de damas (Pygame)
-├── tests/              # Testes isolados dos módulos
-├── assets/model/       # Modelo de linguagem Vosk
-└── requirements.txt
+├── voice_checkers.py      # Módulo principal com lógica integrada
+├── assets/
+│   └── model/             # Modelo de reconhecimento Vosk
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
 Desenvolvido por [evil988](https://github.com/evil988)
-
