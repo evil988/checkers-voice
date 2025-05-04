@@ -21,21 +21,13 @@ pygame.display.set_caption("Damas - Controle por Voz")
 
 class VoiceControlledCheckers:
     def __init__(self):
-        self.tabuleiro = [[0 for _ in range(8)] for _ in range(8)]
-        for y in range(3):
-            for x in range(8):
-                if (x + y) % 2 != 0:
-                    self.tabuleiro[y][x] = 2
-        for y in range(5, 8):
-            for x in range(8):
-                if (x + y) % 2 != 0:
-                    self.tabuleiro[y][x] = 1
+        self.inicializar_tabuleiro()
         self.rodando = True
         self.selecionado = None
         self.posicao_destacada = None
 
         self.numeros = ['um', 'dois', 'tres', 'quatro', 'cinco', 'seis', 'sete', 'oito']
-        frases_validas = [f"linha {l} coluna {c}" for l in self.numeros for c in self.numeros] + ["cancelar"]
+        frases_validas = [f"linha {l} coluna {c}" for l in self.numeros for c in self.numeros] + ["cancelar", "reiniciar"]
         grammar = json.dumps(frases_validas)
 
         model_path = os.path.join("assets", "model")
@@ -48,6 +40,17 @@ class VoiceControlledCheckers:
         self.audio = pyaudio.PyAudio()
         self.stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=8192)
         self.stream.start_stream()
+
+    def inicializar_tabuleiro(self):
+        self.tabuleiro = [[0 for _ in range(8)] for _ in range(8)]
+        for y in range(3):
+            for x in range(8):
+                if (x + y) % 2 != 0:
+                    self.tabuleiro[y][x] = 2
+        for y in range(5, 8):
+            for x in range(8):
+                if (x + y) % 2 != 0:
+                    self.tabuleiro[y][x] = 1
 
     def desenhar_tabuleiro(self):
         for y in range(8):
@@ -74,6 +77,9 @@ class VoiceControlledCheckers:
                 if text == "cancelar":
                     print("🚫 Comando de cancelamento reconhecido")
                     return "cancelar"
+                if text == "reiniciar":
+                    print("🔄 Comando de reinício reconhecido")
+                    return "reiniciar"
                 palavras = text.split()
                 if len(palavras) != 4:
                     print("⚠️ Frase ignorada (formato inválido, esperado 4 palavras):", palavras)
@@ -103,6 +109,10 @@ class VoiceControlledCheckers:
                         self.posicao_destacada = None
                     else:
                         print("ℹ️ Nenhuma posição estava destacada")
+                elif comando == "reiniciar":
+                    self.inicializar_tabuleiro()
+                    self.posicao_destacada = None
+                    print("🔁 Jogo reiniciado para posição inicial")
                 else:
                     linha_str, coluna_str = comando
                     linha_idx = self.numeros.index(linha_str)
