@@ -130,6 +130,17 @@ class VoiceControlledCheckers:
                                 self.tabuleiro[destino[1]][destino[0]] = peca
                                 self.tabuleiro[origem[1]][origem[0]] = 0
                                 print(f"✅ Peça movida de {origem} para {destino}")
+                            elif destino[1] == origem[1] + 2 * direcao and abs(destino[0] - origem[0]) == 2:
+                                meio_x = (origem[0] + destino[0]) // 2
+                                meio_y = (origem[1] + destino[1]) // 2
+                                peca_meio = self.tabuleiro[meio_y][meio_x]
+                                if peca_meio != 0 and peca_meio != peca:
+                                    self.tabuleiro[destino[1]][destino[0]] = peca
+                                    self.tabuleiro[origem[1]][origem[0]] = 0
+                                    self.tabuleiro[meio_y][meio_x] = 0
+                                    print(f"🗑️ Captura realizada de {origem} para {destino} eliminando ({meio_x}, {meio_y})")
+                                else:
+                                    print("❌ Movimento de captura inválido")
                             else:
                                 print("❌ Movimento inválido")
                         else:
