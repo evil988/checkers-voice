@@ -19,6 +19,54 @@ VERDE = (0, 255, 0)
 janela = pygame.display.set_mode((LARGURA, ALTURA))
 pygame.display.set_caption("Damas - Controle por Voz")
 
+def mostrar_menu():
+    fonte = pygame.font.SysFont(None, 60)
+    janela.fill(PRETO)
+
+    opcao1 = fonte.render("1 Jogador", True, BRANCO)
+    opcao2 = fonte.render("2 Jogadores", True, BRANCO)
+
+    rect1 = opcao1.get_rect(center=(LARGURA // 2, ALTURA // 2 - 40))
+    rect2 = opcao2.get_rect(center=(LARGURA // 2, ALTURA // 2 + 40))
+
+    janela.blit(opcao1, rect1)
+    janela.blit(opcao2, rect2)
+    pygame.display.flip()
+
+    # Reconhecimento de voz para selecionar o modo
+    comandos_menu = json.dumps(["um jogador", "dois jogadores"])
+    model_path = os.path.join("assets", "model")
+    model = Model(model_path)
+    recognizer = KaldiRecognizer(model, 16000, comandos_menu)
+    audio = pyaudio.PyAudio()
+    stream = audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=8192)
+    stream.start_stream()
+
+    while True:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        data = stream.read(8192, exception_on_overflow=False)
+        if recognizer.AcceptWaveform(data):
+            result = json.loads(recognizer.Result())
+            text = result.get("text", "").strip()
+            if text:
+                print("\U0001F3A7 Comando no menu:", text)
+                if text == "um jogador":
+                    print("Modo 1 jogador selecionado (ainda não implementado)")
+                    stream.stop_stream()
+                    stream.close()
+                    audio.terminate()
+                    return 1
+                elif text == "dois jogadores":
+                    print("Modo 2 jogadores selecionado")
+                    stream.stop_stream()
+                    stream.close()
+                    audio.terminate()
+                    return 2
+
 class VoiceControlledCheckers:
     def __init__(self):
         self.inicializar_tabuleiro()
@@ -73,24 +121,24 @@ class VoiceControlledCheckers:
             result = json.loads(self.recognizer.Result())
             text = result.get("text", "").strip()
             if text:
-                print("🎧 Frase capturada:", text)
+                print("\U0001F3A7 Frase capturada:", text)
                 if text == "cancelar":
-                    print("🚫 Comando de cancelamento reconhecido")
+                    print("\u274C Comando de cancelamento reconhecido")
                     return "cancelar"
                 if text == "reiniciar":
-                    print("🔄 Comando de reinício reconhecido")
+                    print("\U0001F501 Comando de reinício reconhecido")
                     return "reiniciar"
                 palavras = text.split()
                 if len(palavras) != 4:
-                    print("⚠️ Frase ignorada (formato inválido, esperado 4 palavras):", palavras)
+                    print("\u26A0\uFE0F Frase ignorada (formato inválido, esperado 4 palavras):", palavras)
                     return None
                 if palavras[0] != "linha" or palavras[2] != "coluna":
-                    print("⚠️ Frase ignorada (estrutura esperada: 'linha X coluna Y')")
+                    print("\u26A0\uFE0F Frase ignorada (estrutura esperada: 'linha X coluna Y')")
                     return None
                 if palavras[1] not in self.numeros or palavras[3] not in self.numeros:
-                    print("⚠️ Frase ignorada (números não reconhecidos):", palavras[1], palavras[3])
+                    print("\u26A0\uFE0F Frase ignorada (números não reconhecidos):", palavras[1], palavras[3])
                     return None
-                print("✅ Frase válida detectada")
+                print("\u2705 Frase válida detectada")
                 return palavras[1], palavras[3]
         return None
 
@@ -102,24 +150,24 @@ class VoiceControlledCheckers:
 
             comando = self.escutar_comando()
             if comando:
-                print("🎤 Comando recebido:", comando)
+                print("\U0001F3A4 Comando recebido:", comando)
                 if comando == "cancelar":
                     if self.posicao_destacada is not None:
-                        print("✅ Destaque removido")
+                        print("\u2705 Destaque removido")
                         self.posicao_destacada = None
                     else:
-                        print("ℹ️ Nenhuma posição estava destacada")
+                        print("\u2139\uFE0F Nenhuma posição estava destacada")
                 elif comando == "reiniciar":
                     self.inicializar_tabuleiro()
                     self.posicao_destacada = None
-                    print("🔁 Jogo reiniciado para posição inicial")
+                    print("\U0001F501 Jogo reiniciado para posição inicial")
                 else:
                     linha_str, coluna_str = comando
                     linha_idx = self.numeros.index(linha_str)
                     coluna_idx = self.numeros.index(coluna_str)
                     if self.posicao_destacada is None:
                         self.posicao_destacada = (coluna_idx, linha_idx)
-                        print(f"🟩 Posição {self.posicao_destacada} destacada")
+                        print(f"\U0001F7E9 Posição {self.posicao_destacada} destacada")
                     else:
                         origem = self.posicao_destacada
                         destino = (coluna_idx, linha_idx)
@@ -129,7 +177,7 @@ class VoiceControlledCheckers:
                             if destino[1] == origem[1] + direcao and abs(destino[0] - origem[0]) == 1:
                                 self.tabuleiro[destino[1]][destino[0]] = peca
                                 self.tabuleiro[origem[1]][origem[0]] = 0
-                                print(f"✅ Peça movida de {origem} para {destino}")
+                                print(f"\u2705 Peça movida de {origem} para {destino}")
                             elif destino[1] == origem[1] + 2 * direcao and abs(destino[0] - origem[0]) == 2:
                                 meio_x = (origem[0] + destino[0]) // 2
                                 meio_y = (origem[1] + destino[1]) // 2
@@ -138,13 +186,13 @@ class VoiceControlledCheckers:
                                     self.tabuleiro[destino[1]][destino[0]] = peca
                                     self.tabuleiro[origem[1]][origem[0]] = 0
                                     self.tabuleiro[meio_y][meio_x] = 0
-                                    print(f"🗑️ Captura realizada de {origem} para {destino} eliminando ({meio_x}, {meio_y})")
+                                    print(f"\U0001F5D1️ Captura realizada de {origem} para {destino} eliminando ({meio_x}, {meio_y})")
                                 else:
-                                    print("❌ Movimento de captura inválido")
+                                    print("\u274C Movimento de captura inválido")
                             else:
-                                print("❌ Movimento inválido")
+                                print("\u274C Movimento inválido")
                         else:
-                            print("❌ Destino ocupado")
+                            print("\u274C Destino ocupado")
                         self.posicao_destacada = None
 
             self.desenhar_tabuleiro()
@@ -156,5 +204,7 @@ class VoiceControlledCheckers:
         sys.exit()
 
 if __name__ == "__main__":
-    app = VoiceControlledCheckers()
-    app.iniciar()
+    modo = mostrar_menu()
+    if modo == 2:
+        app = VoiceControlledCheckers()
+        app.iniciar()
