@@ -25,16 +25,19 @@ def mostrar_menu():
 
     opcao1 = fonte.render("1 Jogador", True, BRANCO)
     opcao2 = fonte.render("2 Jogadores", True, BRANCO)
+    opcao3 = fonte.render("Sair", True, BRANCO)
 
-    rect1 = opcao1.get_rect(center=(LARGURA // 2, ALTURA // 2 - 40))
-    rect2 = opcao2.get_rect(center=(LARGURA // 2, ALTURA // 2 + 40))
+    rect1 = opcao1.get_rect(center=(LARGURA // 2, ALTURA // 2 - 60))
+    rect2 = opcao2.get_rect(center=(LARGURA // 2, ALTURA // 2))
+    rect3 = opcao3.get_rect(center=(LARGURA // 2, ALTURA // 2 + 60))
 
     janela.blit(opcao1, rect1)
     janela.blit(opcao2, rect2)
+    janela.blit(opcao3, rect3)
     pygame.display.flip()
 
     # Reconhecimento de voz para selecionar o modo
-    comandos_menu = json.dumps(["um jogador", "dois jogadores"])
+    comandos_menu = json.dumps(["um jogador", "dois jogadores", "sair"])
     model_path = os.path.join("assets", "model")
     model = Model(model_path)
     recognizer = KaldiRecognizer(model, 16000, comandos_menu)
@@ -66,6 +69,13 @@ def mostrar_menu():
                     stream.close()
                     audio.terminate()
                     return 2
+                elif text == "sair":
+                    print("Encerrando o programa por comando de voz")
+                    stream.stop_stream()
+                    stream.close()
+                    audio.terminate()
+                    pygame.quit()
+                    sys.exit()
 
 class VoiceControlledCheckers:
     def __init__(self):
