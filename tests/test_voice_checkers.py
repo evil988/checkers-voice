@@ -85,7 +85,7 @@ class VoiceControlledCheckers:
         self.posicao_destacada = None
 
         self.numeros = ['um', 'dois', 'tres', 'quatro', 'cinco', 'seis', 'sete', 'oito']
-        frases_validas = [f"linha {l} coluna {c}" for l in self.numeros for c in self.numeros] + ["cancelar", "reiniciar"]
+        frases_validas = [f"linha {l} coluna {c}" for l in self.numeros for c in self.numeros] + ["cancelar", "reiniciar", "voltar ao menu principal"]
         grammar = json.dumps(frases_validas)
 
         model_path = os.path.join("assets", "model")
@@ -138,6 +138,9 @@ class VoiceControlledCheckers:
                 if text == "reiniciar":
                     print("\U0001F501 Comando de reinício reconhecido")
                     return "reiniciar"
+                if text == "voltar ao menu principal":
+                    print("\U0001F519 Retornando ao menu principal")
+                    return "menu"
                 palavras = text.split()
                 if len(palavras) != 4:
                     print("\u26A0\uFE0F Frase ignorada (formato inválido, esperado 4 palavras):", palavras)
@@ -171,6 +174,9 @@ class VoiceControlledCheckers:
                     self.inicializar_tabuleiro()
                     self.posicao_destacada = None
                     print("\U0001F501 Jogo reiniciado para posição inicial")
+                elif comando == "menu":
+                    print("\U0001F519 Encerrando partida e retornando ao menu principal")
+                    return "menu"
                 else:
                     linha_str, coluna_str = comando
                     linha_idx = self.numeros.index(linha_str)
@@ -214,7 +220,14 @@ class VoiceControlledCheckers:
         sys.exit()
 
 if __name__ == "__main__":
-    modo = mostrar_menu()
-    if modo == 2:
-        app = VoiceControlledCheckers()
-        app.iniciar()
+    while True:
+        modo = mostrar_menu()
+        if modo == 2:
+            app = VoiceControlledCheckers()
+            resultado = app.iniciar()
+            if resultado == "menu":
+                continue
+            else:
+                break
+        else:
+            break
