@@ -6,9 +6,11 @@ import random
 import pyaudio
 from vosk import Model, KaldiRecognizer
 
+# Inicialização do Pygame
 pygame.init()
 LARGURA, ALTURA = 640, 640
 TAMANHO_CASA = LARGURA // 8
+
 BRANCO = (255, 255, 255)
 PRETO = (0, 0, 0)
 VERMELHO = (200, 0, 0)
@@ -16,7 +18,8 @@ AZUL = (0, 0, 255)
 VERDE = (0, 255, 0)
 
 janela = pygame.display.set_mode((LARGURA, ALTURA))
-pygame.display.set_caption("Damas - Controle por Voz")
+pygame.display.set_caption("Damas - Controle por Voz e Mouse")
+
 
 def mostrar_menu():
     fonte = pygame.font.SysFont(None, 60)
@@ -110,13 +113,15 @@ def mostrar_menu():
                     pygame.quit()
                     sys.exit()
 
-class VoiceControlledCheckers:
+
+class VoiceMouseControlledCheckers:
     def __init__(self, mode):
         self.mode = mode
         self.inicializar_tabuleiro()
         self.rodando = True
         self.posicao_destacada = None
 
+        # Definição das frases válidas para voz
         self.numeros = [
             'um', 'dois', 'tres', 'quatro',
             'cinco', 'seis', 'sete', 'oito'
@@ -195,10 +200,10 @@ class VoiceControlledCheckers:
             if text:
                 if text in ["cancelar", "reiniciar", "voltar ao menu principal"]:
                     return "menu" if text == "voltar ao menu principal" else text
-                palavras = text.split()
-                if len(palavras) == 4 and palavras[0] == "linha" and palavras[2] == "coluna":
-                    if palavras[1] in self.numeros and palavras[3] in self.numeros:
-                        return (palavras[1], palavras[3])
+                pal = text.split()
+                if len(pal) == 4 and pal[0] == "linha" and pal[2] == "coluna":
+                    if pal[1] in self.numeros and pal[3] in self.numeros:
+                        return (pal[1], pal[3])
         return None
 
     def executar_jogada_azul(self):
@@ -228,73 +233,96 @@ class VoiceControlledCheckers:
         else:
             print("🤖 Azul sem jogadas possíveis")
 
+    def handle_move(self, comando):
+        # Comandos de controle
+        if comando == "cancelar" and self.posicao_destacada:
+            self.posicao_destacada = None
+            print("✅ Destaque removido")
+        elif comando == "reiniciar":
+            self.inicializar_tabuleiro()
+            self.posicao_destacada = None
+            print("🔄 Jogo reiniciado")
+        elif comando == "menu":
+            return "menu"
+        elif isinstance(comando, tuple):
+            # Converte comandos de voz (strings) ou mouse (ínt).  
+            if isinstance(comando[0], int):
+                row_idx, col_idx = comando
+            else:
+                row_idx = self.numeros.index(comando[0])
+                col_idx = self.numeros.index(comando[1])
+            # Selecionar ou mover
+            if self.posicao_destacada is None:
+                if self.tabuleiro[row_idx][col_idx] == 0:
+                    print("❌ Não há peça nessa posição")
+                elif self.mode == 1 and self.tabuleiro[row_idx][col_idx] != 1:
+                    print("❌ Modo 1 jogador: só peças vermelhas podem ser selecionadas")
+                else:
+                    self.posicao_destacada = (col_idx, row_idx)
+                    print(f"🟩 Posição {self.posicao_destacada} destacada")
+            else:
+                origem = self.posicao_destacada
+                destino = (col_idx, row_idx)
+                peca = self.tabuleiro[origem[1]][origem[0]]
+                # Movimento simples
+                if self.tabuleiro[destino[1]][destino[0]] == 0 and destino[1] == origem[1] + (-1 if peca == 1 else 1) and abs(destino[0] - origem[0]) == 1:
+                    self.tabuleiro[destino[1]][destino[0]] = peca
+                    self.tabuleiro[origem[1]][origem[0]] = 0
+                    print(f"✅ Peça movida de {origem} para {destino}")
+                    if self.mode == 1:
+                        self.executar_jogada_azul()
+                # Captura
+                elif self.tabuleiro[destino[1]][destino[0]] == 0 and destino[1] == origem[1] + 2 * (-1 if peca == 1 else 1) and abs(destino[0] - origem[0]) == 2:
+                    meio_x = (origem[0] + destino[0]) // 2
+                    meio_y = (origem[1] + destino[1]) // 2
+                    if self.tabuleiro[meio_y][meio_x] != peca and self.tabuleiro[meio_y][meio_x] != 0:
+                        self.tabuleiro[destino[1]][destino[0]] = peca
+                        self.tabuleiro[origem[1]][origem[0]] = 0
+                        self.tabuleiro[meio_y][meio_x] = 0
+                        print(f"🗑️ Captura de {origem} para {destino}")
+                        if self.mode == 1:
+                            self.executar_jogada_azul()
+                    else:
+                        print("❌ Captura inválida")
+                else:
+                    print("❌ Movimento inválido")
+                self.posicao_destacada = None
+        return None
+
     def iniciar(self):
         while self.rodando:
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     self.rodando = False
+                elif evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
+                    x, y = evento.pos
+                    col = x // TAMANHO_CASA
+                    row = y // TAMANHO_CASA
+                    resultado = self.handle_move((row, col))
+                    if resultado == "menu":
+                        return "menu"
 
             comando = self.escutar_comando()
             if comando:
-                if comando == "cancelar" and self.posicao_destacada:
-                    self.posicao_destacada = None
-                    print("✅ Destaque removido")
-                elif comando == "reiniciar":
-                    self.inicializar_tabuleiro()
-                    self.posicao_destacada = None
-                    print("🔄 Jogo reiniciado")
-                elif comando == "menu":
+                resultado = self.handle_move(comando)
+                if resultado == "menu":
                     return "menu"
-                elif isinstance(comando, tuple):
-                    linha_idx = self.numeros.index(comando[0])
-                    coluna_idx = self.numeros.index(comando[1])
-                    if self.posicao_destacada is None:
-                        if self.tabuleiro[linha_idx][coluna_idx] == 0:
-                            print("❌ Não há peça nessa posição")
-                        elif self.mode == 1 and self.tabuleiro[linha_idx][coluna_idx] != 1:
-                            print("❌ Modo 1 jogador: só peças vermelhas podem ser selecionadas")
-                        else:
-                            self.posicao_destacada = (coluna_idx, linha_idx)
-                            print(f"🟩 Posição {self.posicao_destacada} destacada")
-                    else:
-                        origem = self.posicao_destacada
-                        destino = (coluna_idx, linha_idx)
-                        peca = self.tabuleiro[origem[1]][origem[0]]
-                        if self.tabuleiro[destino[1]][destino[0]] == 0 and destino[1] == origem[1] + (-1 if peca == 1 else 1) and abs(destino[0] - origem[0]) == 1:
-                            self.tabuleiro[destino[1]][destino[0]] = peca
-                            self.tabuleiro[origem[1]][origem[0]] = 0
-                            print(f"✅ Peça movida de {origem} para {destino}")
-                            if self.mode == 1:
-                                self.executar_jogada_azul()
-                        elif self.tabuleiro[destino[1]][destino[0]] == 0 and destino[1] == origem[1] + 2 * (-1 if peca == 1 else 1) and abs(destino[0] - origem[0]) == 2:
-                            meio_x = (origem[0] + destino[0]) // 2
-                            meio_y = (origem[1] + destino[1]) // 2
-                            if self.tabuleiro[meio_y][meio_x] != peca and self.tabuleiro[meio_y][meio_x] != 0:
-                                self.tabuleiro[destino[1]][destino[0]] = peca
-                                self.tabuleiro[origem[1]][origem[0]] = 0
-                                self.tabuleiro[meio_y][meio_x] = 0
-                                print(f"🗑️ Captura de {origem} para {destino}")
-                                if self.mode == 1:
-                                    self.executar_jogada_azul()
-                            else:
-                                print("❌ Captura inválida")
-                        else:
-                            print("❌ Movimento inválido")
-                        self.posicao_destacada = None
 
             self.desenhar_tabuleiro()
 
+        # Cleanup
         self.stream.stop_stream()
         self.stream.close()
         self.audio.terminate()
         pygame.quit()
         sys.exit()
 
+
 if __name__ == "__main__":
     while True:
         modo = mostrar_menu()
         if modo in (1, 2):
-            app = VoiceControlledCheckers(modo)
+            app = VoiceMouseControlledCheckers(modo)
             resultado = app.iniciar()
             if resultado == "menu":
                 continue
