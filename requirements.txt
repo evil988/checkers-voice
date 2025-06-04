@@ -1,3 +1,4 @@
-vosk
-pyaudio
-pygame
+# Runtime dependencies for the Checkers Voice project
+vosk>=0.3
+pyaudio>=0.2
+pygame>=2.0
