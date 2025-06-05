@@ -11,7 +11,9 @@ venv/
 
 # Modelos Vosk (pesados, não versionáveis)
 model/
+model/*/
 assets/model/
+assets/model/*/
 
 # Arquivos temporários ou de testes
 *.log
