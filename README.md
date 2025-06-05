@@ -32,7 +32,7 @@ pip install -r requirements.txt
 
 5. Execute o jogo com controle por voz:
 ```bash
-python voice_checkers.py
+python src/main.py
 ```
 
 ## 🎯 Comandos de voz aceitos
@@ -53,11 +53,13 @@ python voice_checkers.py
 
 ```
 checkers-voice/
-├── voice_checkers.py      # Módulo principal com lógica integrada
-├── assets/
-│   └── model/             # Modelo de reconhecimento Vosk
-├── requirements.txt
-└── README.md
+├── src/main.py              # Módulo principal
+├── checkers/                # Regras e desenho do tabuleiro
+├── menu/                    # Menu principal por voz
+├── speech/                  # Reconhecimento de fala
+├── assets/model/            # Modelo Vosk (baixar separadamente)
+├── tests/                   # Testes unitários
+└── requirements.txt
 ```
 
 ---
