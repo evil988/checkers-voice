@@ -1,5 +1,5 @@
 # Bytecode e cache do Python
-__pycache__/
+**/__pycache__/
 *.py[cod]
 
 # Ambiente virtual
