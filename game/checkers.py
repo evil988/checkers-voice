@@ -11,7 +11,7 @@ PRETO = (0, 0, 0)
 VERMELHO = (200, 0, 0)
 AZUL = (0, 0, 255)
 
-janela = pygame.display.set_mode((LARGURA, ALTURA))
+window = pygame.display.set_mode((LARGURA, ALTURA))
 pygame.display.set_caption("Damas - Controle por Voz")
 
 class CheckersGame:
@@ -26,17 +26,17 @@ class CheckersGame:
                 if (x + y) % 2 != 0:
                     self.tabuleiro[y][x] = 1
         self.selecionado = None
-        self.rodando = True
+        self.running = True
 
-    def desenhar_tabuleiro(self):
+    def draw_board(self):
         for y in range(8):
             for x in range(8):
                 cor = BRANCO if (x + y) % 2 == 0 else PRETO
-                pygame.draw.rect(janela, cor, (x*TAMANHO_CASA, y*TAMANHO_CASA, TAMANHO_CASA, TAMANHO_CASA))
+                pygame.draw.rect(window, cor, (x*TAMANHO_CASA, y*TAMANHO_CASA, TAMANHO_CASA, TAMANHO_CASA))
                 if self.tabuleiro[y][x] == 1:
-                    pygame.draw.circle(janela, VERMELHO, (x*TAMANHO_CASA + TAMANHO_CASA//2, y*TAMANHO_CASA + TAMANHO_CASA//2), TAMANHO_CASA//2 - 10)
+                    pygame.draw.circle(window, VERMELHO, (x*TAMANHO_CASA + TAMANHO_CASA//2, y*TAMANHO_CASA + TAMANHO_CASA//2), TAMANHO_CASA//2 - 10)
                 elif self.tabuleiro[y][x] == 2:
-                    pygame.draw.circle(janela, AZUL, (x*TAMANHO_CASA + TAMANHO_CASA//2, y*TAMANHO_CASA + TAMANHO_CASA//2), TAMANHO_CASA//2 - 10)
+                    pygame.draw.circle(window, AZUL, (x*TAMANHO_CASA + TAMANHO_CASA//2, y*TAMANHO_CASA + TAMANHO_CASA//2), TAMANHO_CASA//2 - 10)
         pygame.display.flip()
 
     def mover_por_comando(self, comando):
@@ -76,11 +76,11 @@ class CheckersGame:
             print("Comando inválido ou mal formatado")
 
     def rodar_jogo(self):
-        while self.rodando:
+        while self.running:
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
-                    self.rodando = False
-            self.desenhar_tabuleiro()
+                    self.running = False
+            self.draw_board()
 
         pygame.quit()
         sys.exit()

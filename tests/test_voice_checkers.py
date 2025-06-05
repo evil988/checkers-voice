@@ -20,7 +20,7 @@ AZUL = (0, 0, 255)
 VERDE = (0, 255, 0)
 AMARELO = (255, 255, 0)
 
-janela = pygame.display.set_mode((LARGURA, ALTURA))
+window = pygame.display.set_mode((LARGURA, ALTURA))
 pygame.display.set_caption('Damas - Controle por Voz e Mouse')
 
 def init_menu_recognizer():
@@ -31,7 +31,7 @@ def init_menu_recognizer():
     cmds = json.dumps(['um jogador', 'dois jogadores', 'sair'])
     return KaldiRecognizer(model, 16000, cmds)
 
-def mostrar_menu():
+def show_menu():
     fonte = pygame.font.SysFont(None, 60)
     recognizer = init_menu_recognizer()
     pa = pyaudio.PyAudio()
@@ -40,14 +40,14 @@ def mostrar_menu():
     stream.start_stream()
     hovered = None
     while True:
-        janela.fill(PRETO)
+        window.fill(PRETO)
         cores = [VERDE if hovered == i else BRANCO for i in (1, 2, 3)]
         textos = ['1 Jogador', '2 Jogadores', 'Sair']
         rects = []
         for idx, txt in enumerate(textos, 1):
             surf = fonte.render(txt, True, cores[idx-1])
             r = surf.get_rect(center=(LARGURA//2, ALTURA//2 + (idx-2)*60))
-            janela.blit(surf, r)
+            window.blit(surf, r)
             rects.append(r)
         pygame.display.flip()
         for e in pygame.event.get():
@@ -76,16 +76,16 @@ def mostrar_menu():
 class VoiceMouseControlledCheckers:
     def __init__(self, mode):
         self.mode = mode
-        self.numeros = ['um','dois','tres','quatro','cinco','seis','sete','oito']
-        frases = [f'linha {l} coluna {c}' for l in self.numeros for c in self.numeros] + ['cancelar','reiniciar','voltar ao menu principal']
+        self.numbers = ['um','dois','tres','quatro','cinco','seis','sete','oito']
+        phrases = [f'linha {l} coluna {c}' for l in self.numbers for c in self.numbers] + ['cancelar','reiniciar','voltar ao menu principal']
         model = Model(os.path.join('assets','model'))
-        self.recognizer = KaldiRecognizer(model, 16000, json.dumps(frases))
+        self.recognizer = KaldiRecognizer(model, 16000, json.dumps(phrases))
         self.pa = pyaudio.PyAudio()
         self.stream = self.pa.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=8192)
         self.stream.start_stream()
         self.inicializar_tabuleiro()
-        self.posicao_destacada = None
-        self.rodando = True
+        self.highlighted_pos = None
+        self.running = True
 
     def inicializar_tabuleiro(self):
         self.tabuleiro = [[0]*8 for _ in range(8)]
@@ -97,34 +97,34 @@ class VoiceMouseControlledCheckers:
                 if (x+y)%2: self.tabuleiro[y][x] = 1
         print('Tabuleiro inicializado')
 
-    def desenhar_tabuleiro(self):
+    def draw_board(self):
         fonte_label = pygame.font.SysFont(None, 24)
-        janela.fill(PRETO)
+        window.fill(PRETO)
         for y in range(8):
             for x in range(8):
                 cor = BRANCO if (x+y)%2==0 else PRETO
                 rect = pygame.Rect(MARGIN+x*TAMANHO_CASA, y*TAMANHO_CASA, TAMANHO_CASA, TAMANHO_CASA)
-                pygame.draw.rect(janela, cor, rect)
-                if self.posicao_destacada == (x, y): pygame.draw.rect(janela, VERDE, rect, 4)
+                pygame.draw.rect(window, cor, rect)
+                if self.highlighted_pos == (x, y): pygame.draw.rect(window, VERDE, rect, 4)
                 p = self.tabuleiro[y][x]
                 center = (MARGIN + x*TAMANHO_CASA + TAMANHO_CASA//2, y*TAMANHO_CASA + TAMANHO_CASA//2)
-                if p in (1,3): pygame.draw.circle(janela, VERMELHO, center, TAMANHO_CASA//2-10)
-                if p in (2,4): pygame.draw.circle(janela, AZUL, center, TAMANHO_CASA//2-10)
+                if p in (1,3): pygame.draw.circle(window, VERMELHO, center, TAMANHO_CASA//2-10)
+                if p in (2,4): pygame.draw.circle(window, AZUL, center, TAMANHO_CASA//2-10)
                 if p in (3,4):
                     d = pygame.font.SysFont(None, TAMANHO_CASA//2).render('D', True, AMARELO)
-                    janela.blit(d, d.get_rect(center=center))
+                    window.blit(d, d.get_rect(center=center))
         col_labels = ['C1','C2','C3','C4','C5','C6','C7','C8']
         for i,text in enumerate(col_labels):
             label = fonte_label.render(text, True, AMARELO)
             lx = MARGIN + i*TAMANHO_CASA + (TAMANHO_CASA-label.get_width())//2
             ly = BOARD_HEIGHT + (MARGIN-label.get_height())//2
-            janela.blit(label,(lx,ly))
+            window.blit(label,(lx,ly))
         row_labels = ['L1','L2','L3','L4','L5','L6','L7','L8']
         for j,text in enumerate(row_labels):
             label = fonte_label.render(text,True,AMARELO)
             lx = (MARGIN-label.get_width())//2
             ly = j*TAMANHO_CASA + (TAMANHO_CASA-label.get_height())//2
-            janela.blit(label,(lx,ly))
+            window.blit(label,(lx,ly))
         pygame.display.flip()
 
     def escutar_comando(self):
@@ -135,8 +135,8 @@ class VoiceMouseControlledCheckers:
             if txt in ['cancelar','reiniciar','voltar ao menu principal']:
                 print(f'Ação de menu: {txt}'); return 'menu' if txt=='voltar ao menu principal' else txt
             sp = txt.split()
-            if len(sp)==4 and sp[0]=='linha' and sp[2]=='coluna' and sp[1] in self.numeros and sp[3] in self.numeros:
-                pos=(self.numeros.index(sp[1]),self.numeros.index(sp[3])); print(f'Posição escutada: {pos}'); return pos
+            if len(sp)==4 and sp[0]=='linha' and sp[2]=='coluna' and sp[1] in self.numbers and sp[3] in self.numbers:
+                pos=(self.numbers.index(sp[1]),self.numbers.index(sp[3])); print(f'Posição escutada: {pos}'); return pos
         return None
 
     def executar_jogada_azul(self):
@@ -166,23 +166,23 @@ class VoiceMouseControlledCheckers:
             if p==2 and y1==7: self.tabuleiro[y1][x1]=4;print(f'IA promoveu peça em {(x1,y1)}')
 
     def handle_move(self, comando):
-        if comando=='cancelar' and self.posicao_destacada:
-            print('Comando: cancelar');self.posicao_destacada=None
+        if comando=='cancelar' and self.highlighted_pos:
+            print('Comando: cancelar');self.highlighted_pos=None
         elif comando=='reiniciar':
-            print('Comando: reiniciar');self.inicializar_tabuleiro();self.posicao_destacada=None
+            print('Comando: reiniciar');self.inicializar_tabuleiro();self.highlighted_pos=None
         elif comando=='menu':
             print('Comando: voltar ao menu');return 'menu'
         elif isinstance(comando,tuple):
             r,c=comando
-            if self.posicao_destacada is None:
+            if self.highlighted_pos is None:
                 if (self.tabuleiro[r][c] == 0 or
                     (self.mode == 1 and
                      self.tabuleiro[r][c] not in (1, 3))):
                     return
                 print(f'Posição destacada para movimentação: {(c, r)}')
-                self.posicao_destacada = (c, r)
+                self.highlighted_pos = (c, r)
                 return
-            ox, oy = self.posicao_destacada
+            ox, oy = self.highlighted_pos
             dx, dy = c - ox, r - oy
             p = self.tabuleiro[oy][ox]
             if p in (1, 2):
@@ -191,7 +191,7 @@ class VoiceMouseControlledCheckers:
                     print(f'Movimento simples de {(ox, oy)} para {(c, r)}')
                     self.tabuleiro[r][c] = p
                     self.tabuleiro[oy][ox] = 0
-                    self.posicao_destacada = None
+                    self.highlighted_pos = None
                     if (p == 1 and r == 0) or (p == 2 and r == 7):
                         self.tabuleiro[r][c] = p + 2
                         print(f'Promoção em {(c, r)}')
@@ -204,7 +204,7 @@ class VoiceMouseControlledCheckers:
                         self.tabuleiro[my][mx] = 0
                         self.tabuleiro[r][c] = p
                         self.tabuleiro[oy][ox] = 0
-                        self.posicao_destacada = None
+                        self.highlighted_pos = None
                         if (p == 1 and r == 0) or (p == 2 and r == 7):
                             self.tabuleiro[r][c] = p + 2
                             print(f'Promoção após captura em {(c, r)}')
@@ -215,7 +215,7 @@ class VoiceMouseControlledCheckers:
                     print(f'Dama movendo de {(ox, oy)} para {(c, r)}')
                     self.tabuleiro[r][c] = p
                     self.tabuleiro[oy][ox] = 0
-                    self.posicao_destacada = None
+                    self.highlighted_pos = None
                     if self.mode == 1:
                         self.executar_jogada_azul()
                     return
@@ -236,18 +236,18 @@ class VoiceMouseControlledCheckers:
                                 break
                         if captura_possivel:
                             print(f'Dama múltipla captura continua em {(c, r)}')
-                            self.posicao_destacada = (c, r)
+                            self.highlighted_pos = (c, r)
                             return
-                        self.posicao_destacada = None
+                        self.highlighted_pos = None
                         if self.mode == 1:
                             self.executar_jogada_azul()
 
-    def iniciar(self):
-        while self.rodando:
+    def start(self):
+        while self.running:
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
                     print('Encerrando jogo')
-                    self.rodando = False
+                    self.running = False
                 if e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
                     sel = ((e.pos[1] // TAMANHO_CASA),
                            ((e.pos[0] - MARGIN) // TAMANHO_CASA))
@@ -256,7 +256,7 @@ class VoiceMouseControlledCheckers:
             cmd = self.escutar_comando()
             if cmd and self.handle_move(cmd) == 'menu':
                 return 'menu'
-            self.desenhar_tabuleiro()
+            self.draw_board()
         self.stream.stop_stream()
         self.stream.close()
         self.pa.terminate()
@@ -265,9 +265,9 @@ class VoiceMouseControlledCheckers:
 
 if __name__ == '__main__':
     while True:
-        modo = mostrar_menu()
+        modo = show_menu()
         if modo in (1, 2):
-            res = VoiceMouseControlledCheckers(modo).iniciar()
+            res = VoiceMouseControlledCheckers(modo).start()
             if res == 'menu':
                 continue
             break

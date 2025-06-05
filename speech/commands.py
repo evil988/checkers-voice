@@ -6,33 +6,33 @@ class CommandParser:
     """
 
     def __init__(self):
-        self.numeros = ['um', 'dois', 'tres', 'quatro', 'cinco', 'seis', 'sete', 'oito']
+        self.numbers = ['um', 'dois', 'tres', 'quatro', 'cinco', 'seis', 'sete', 'oito']
 
-    def parse_menu(self, texto):
+    def parse_menu(self, text):
         """
         Retorna 1, 2 ou 'sair' se reconhecer comando de menu.
         """
-        texto = texto.lower().strip()
-        if texto in ['um jogador', 'dois jogadores', 'sair']:
-            return texto
+        text = text.lower().strip()
+        if text in ['um jogador', 'dois jogadores', 'sair']:
+            return text
         return None
 
-    def parse_move(self, texto):
+    def parse_move(self, text):
         """
         Se o texto for no formato “linha X coluna Y”, retorna (coluna_index, linha_index) como tupla.
         Exemplo: “linha dois coluna cinco” → (1, 4) [porque índice base 0]
         """
-        if not texto:
+        if not text:
             return None
 
-        sp = texto.split()
+        sp = text.split()
         if len(sp) == 4 and sp[0] == 'linha' and sp[2] == 'coluna':
             try:
-                r = self.numeros.index(sp[1])
-                c = self.numeros.index(sp[3])
+                r = self.numbers.index(sp[1])
+                c = self.numbers.index(sp[3])
                 return (c, r)
             except ValueError:
                 return None
-        if texto in ['cancelar', 'reiniciar', 'voltar ao menu principal']:
-            return texto  # ação especial
+        if text in ['cancelar', 'reiniciar', 'voltar ao menu principal']:
+            return text  # ação especial
         return None
