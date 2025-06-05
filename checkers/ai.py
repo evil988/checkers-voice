@@ -1,32 +1,32 @@
 # checkers/ai.py
 
 import random
-from .rules import movimentos_simples, movimentos_captura
+from .rules import simple_moves, capture_moves
 
-def escolher_jogada_aleatoria(tabuleiro):
+def choose_random_move(board):
     """
     Para o jogador 'azul' (peça 2 ou dama 4), coleta todos os movimentos possíveis
     (simples + captura) e escolhe aleatoriamente um.
     Retorna (origem, destino, houve_captura).
     """
-    movs = []
-    coroas = [2, 4]  # 2=peça normal azul; 4=dama azul
+    moves = []
+    crowns = [2, 4]  # 2=peça normal azul; 4=dama azul
 
     for y in range(8):
         for x in range(8):
-            if tabuleiro[y][x] in coroas:
+            if board[y][x] in crowns:
                 # Capturas têm prioridade
-                caps = movimentos_captura(tabuleiro, x, y)
+                caps = capture_moves(board, x, y)
                 if caps:
                     for m in caps:
-                        movs.append((m, True))
+                        moves.append((m, True))
                 else:
-                    sims = movimentos_simples(tabuleiro, x, y)
+                    sims = simple_moves(board, x, y)
                     for m in sims:
-                        movs.append((m, False))
+                        moves.append((m, False))
 
-    if not movs:
+    if not moves:
         return None  # sem jogadas possíveis (fim de jogo)
 
-    (origem, destino), captura = random.choice(movs)
-    return origem, destino, captura
+    (origin, dest), capture = random.choice(moves)
+    return origin, dest, capture

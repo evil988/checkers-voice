@@ -11,9 +11,20 @@ from menu.menu import show_menu
 from speech.recognizer import SpeechRecognizer
 from speech.commands import CommandParser
 from checkers.board import Board
-from checkers.rules import movimentos_simples, movimentos_captura, aplicar_movimento, promover_peça
-from checkers.ai import escolher_jogada_aleatoria
-from checkers.draw import draw_board, LARGURA, ALTURA, MARGIN, TAMANHO_CASA
+from checkers.rules import (
+    simple_moves,
+    capture_moves,
+    apply_move,
+    promote_piece,
+)
+from checkers.ai import choose_random_move
+from checkers.draw import (
+    draw_board,
+    WIDTH,
+    HEIGHT,
+    MARGIN,
+    SQUARE_SIZE,
+)
 
 class VoiceMouseControlledCheckers:
     def __init__(self, mode):
@@ -28,7 +39,7 @@ class VoiceMouseControlledCheckers:
         self.cmd_parser = CommandParser()
 
         pygame.init()
-        self.window = pygame.display.set_mode((LARGURA, ALTURA))
+        self.window = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('Damas - Controle por Voz e Mouse')
 
     def escutar_comando(self):
@@ -69,38 +80,38 @@ class VoiceMouseControlledCheckers:
             dest = (x, y)
             p = self.board.get_piece(ox, oy)
 
-            caps = movimentos_captura(self.board.tabuleiro, ox, oy)
+            caps = capture_moves(self.board.grid, ox, oy)
             if dest in [dest_pair[1] for dest_pair in caps]:
-                aplicar_movimento(self.board.tabuleiro, (ox, oy), dest)
-                promover_peça(self.board.tabuleiro, x, y)
+                apply_move(self.board.grid, (ox, oy), dest)
+                promote_piece(self.board.grid, x, y)
                 self.highlighted_pos = None
                 if self.mode == 1:
-                    self.jogada_ia()
+                    self.ai_move()
                 return
 
-            sims = movimentos_simples(self.board.tabuleiro, ox, oy)
+            sims = simple_moves(self.board.grid, ox, oy)
             if dest in [dest_pair[1] for dest_pair in sims]:
-                aplicar_movimento(self.board.tabuleiro, (ox, oy), dest)
-                promover_peça(self.board.tabuleiro, x, y)
+                apply_move(self.board.grid, (ox, oy), dest)
+                promote_piece(self.board.grid, x, y)
                 self.highlighted_pos = None
                 if self.mode == 1:
-                    self.jogada_ia()
+                    self.ai_move()
                 return
 
             return
 
-    def jogada_ia(self):
+    def ai_move(self):
         """
         Executa a jogada automática para o azul (modo 1), chamando função de IA.
         """
-        result = escolher_jogada_aleatoria(self.board.tabuleiro)
+        result = choose_random_move(self.board.grid)
         if result is None:
             return
 
         origem, destino, _ = result
-        aplicar_movimento(self.board.tabuleiro, origem, destino)
+        apply_move(self.board.grid, origem, destino)
         x, y = destino
-        promover_peça(self.board.tabuleiro, x, y)
+        promote_piece(self.board.grid, x, y)
 
 
     def start(self):
@@ -111,8 +122,8 @@ class VoiceMouseControlledCheckers:
                     self.running = False
                 if e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
                     pos_mouse = e.pos
-                    col = (pos_mouse[0] - MARGIN) // TAMANHO_CASA
-                    row = pos_mouse[1] // TAMANHO_CASA
+                    col = (pos_mouse[0] - MARGIN) // SQUARE_SIZE
+                    row = pos_mouse[1] // SQUARE_SIZE
                     if 0 <= col < 8 and 0 <= row < 8:
                         cmd = (col, row)
                         if self.handle_move(cmd) == 'menu':

@@ -3,56 +3,56 @@ import sys
 
 pygame.init()
 
-LARGURA, ALTURA = 640, 640
-TAMANHO_CASA = LARGURA // 8
+WIDTH, HEIGHT = 640, 640
+SQUARE_SIZE = WIDTH // 8
 
-BRANCO = (255, 255, 255)
-PRETO = (0, 0, 0)
-VERMELHO = (200, 0, 0)
-AZUL = (0, 0, 255)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (200, 0, 0)
+BLUE = (0, 0, 255)
 
-window = pygame.display.set_mode((LARGURA, ALTURA))
+window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Damas - Controle por Clique")
 
 class CheckersGame:
     def __init__(self):
-        self.tabuleiro = [[0 for _ in range(8)] for _ in range(8)]
+        self.board = [[0 for _ in range(8)] for _ in range(8)]
         for y in range(3):
             for x in range(8):
                 if (x + y) % 2 != 0:
-                    self.tabuleiro[y][x] = 2
+                    self.board[y][x] = 2
         for y in range(5, 8):
             for x in range(8):
                 if (x + y) % 2 != 0:
-                    self.tabuleiro[y][x] = 1
-        self.selecionado = None
+                    self.board[y][x] = 1
+        self.selected = None
         self.running = True
 
     def draw_board(self):
         for y in range(8):
             for x in range(8):
-                cor = BRANCO if (x + y) % 2 == 0 else PRETO
-                pygame.draw.rect(window, cor, (x*TAMANHO_CASA, y*TAMANHO_CASA, TAMANHO_CASA, TAMANHO_CASA))
-                if self.tabuleiro[y][x] == 1:
-                    pygame.draw.circle(window, VERMELHO, (x*TAMANHO_CASA + TAMANHO_CASA//2, y*TAMANHO_CASA + TAMANHO_CASA//2), TAMANHO_CASA//2 - 10)
-                elif self.tabuleiro[y][x] == 2:
-                    pygame.draw.circle(window, AZUL, (x*TAMANHO_CASA + TAMANHO_CASA//2, y*TAMANHO_CASA + TAMANHO_CASA//2), TAMANHO_CASA//2 - 10)
+                color = WHITE if (x + y) % 2 == 0 else BLACK
+                pygame.draw.rect(window, color, (x*SQUARE_SIZE, y*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                if self.board[y][x] == 1:
+                    pygame.draw.circle(window, RED, (x*SQUARE_SIZE + SQUARE_SIZE//2, y*SQUARE_SIZE + SQUARE_SIZE//2), SQUARE_SIZE//2 - 10)
+                elif self.board[y][x] == 2:
+                    pygame.draw.circle(window, BLUE, (x*SQUARE_SIZE + SQUARE_SIZE//2, y*SQUARE_SIZE + SQUARE_SIZE//2), SQUARE_SIZE//2 - 10)
         pygame.display.flip()
 
     def lidar_clique(self, pos):
-        x, y = pos[0] // TAMANHO_CASA, pos[1] // TAMANHO_CASA
-        if self.selecionado:
-            sel_x, sel_y = self.selecionado
-            peca = self.tabuleiro[sel_y][sel_x]
-            if self.tabuleiro[y][x] == 0:
-                direcao = -1 if peca == 1 else 1
-                if y == sel_y + direcao and abs(x - sel_x) == 1:
-                    self.tabuleiro[y][x] = peca
-                    self.tabuleiro[sel_y][sel_x] = 0
-            self.selecionado = None
+        x, y = pos[0] // SQUARE_SIZE, pos[1] // SQUARE_SIZE
+        if self.selected:
+            sel_x, sel_y = self.selected
+            piece = self.board[sel_y][sel_x]
+            if self.board[y][x] == 0:
+                direction = -1 if piece == 1 else 1
+                if y == sel_y + direction and abs(x - sel_x) == 1:
+                    self.board[y][x] = piece
+                    self.board[sel_y][sel_x] = 0
+            self.selected = None
         else:
-            if self.tabuleiro[y][x] != 0:
-                self.selecionado = (x, y)
+            if self.board[y][x] != 0:
+                self.selected = (x, y)
 
     def run_game(self):
         while self.running:

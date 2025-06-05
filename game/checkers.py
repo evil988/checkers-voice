@@ -3,66 +3,66 @@ import sys
 
 pygame.init()
 
-LARGURA, ALTURA = 640, 640
-TAMANHO_CASA = LARGURA // 8
+WIDTH, HEIGHT = 640, 640
+SQUARE_SIZE = WIDTH // 8
 
-BRANCO = (255, 255, 255)
-PRETO = (0, 0, 0)
-VERMELHO = (200, 0, 0)
-AZUL = (0, 0, 255)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (200, 0, 0)
+BLUE = (0, 0, 255)
 
-window = pygame.display.set_mode((LARGURA, ALTURA))
+window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Damas - Controle por Voz")
 
 class CheckersGame:
     def __init__(self):
-        self.tabuleiro = [[0 for _ in range(8)] for _ in range(8)]
+        self.board = [[0 for _ in range(8)] for _ in range(8)]
         for y in range(3):
             for x in range(8):
                 if (x + y) % 2 != 0:
-                    self.tabuleiro[y][x] = 2
+                    self.board[y][x] = 2
         for y in range(5, 8):
             for x in range(8):
                 if (x + y) % 2 != 0:
-                    self.tabuleiro[y][x] = 1
-        self.selecionado = None
+                    self.board[y][x] = 1
+        self.selected = None
         self.running = True
 
     def draw_board(self):
         for y in range(8):
             for x in range(8):
-                cor = BRANCO if (x + y) % 2 == 0 else PRETO
-                pygame.draw.rect(window, cor, (x*TAMANHO_CASA, y*TAMANHO_CASA, TAMANHO_CASA, TAMANHO_CASA))
-                if self.tabuleiro[y][x] == 1:
-                    pygame.draw.circle(window, VERMELHO, (x*TAMANHO_CASA + TAMANHO_CASA//2, y*TAMANHO_CASA + TAMANHO_CASA//2), TAMANHO_CASA//2 - 10)
-                elif self.tabuleiro[y][x] == 2:
-                    pygame.draw.circle(window, AZUL, (x*TAMANHO_CASA + TAMANHO_CASA//2, y*TAMANHO_CASA + TAMANHO_CASA//2), TAMANHO_CASA//2 - 10)
+                color = WHITE if (x + y) % 2 == 0 else BLACK
+                pygame.draw.rect(window, color, (x*SQUARE_SIZE, y*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                if self.board[y][x] == 1:
+                    pygame.draw.circle(window, RED, (x*SQUARE_SIZE + SQUARE_SIZE//2, y*SQUARE_SIZE + SQUARE_SIZE//2), SQUARE_SIZE//2 - 10)
+                elif self.board[y][x] == 2:
+                    pygame.draw.circle(window, BLUE, (x*SQUARE_SIZE + SQUARE_SIZE//2, y*SQUARE_SIZE + SQUARE_SIZE//2), SQUARE_SIZE//2 - 10)
         pygame.display.flip()
 
-    def mover_por_comando(self, comando):
-        palavras_para_numeros = {
+    def move_by_command(self, command):
+        words_to_numbers = {
             "um": 1, "dois": 2, "três": 3, "tres": 3, "quatro": 4,
             "cinco": 5, "seis": 6, "sete": 7, "oito": 8,
             "1": 1, "2": 2, "3": 3, "4": 4,
             "5": 5, "6": 6, "7": 7, "8": 8
         }
-        print(f"Recebido comando: {comando}")
-        palavras = comando.split()
-        if len(palavras) == 5 and palavras[0] in ['mover'] and palavras[1] == 'linha' and palavras[3] == 'coluna':
+        print(f"Recebido comando: {command}")
+        words = command.split()
+        if len(words) == 5 and words[0] in ['mover'] and words[1] == 'linha' and words[3] == 'coluna':
             print("Formato do comando reconhecido corretamente")
             try:
-                linha = palavras_para_numeros.get(palavras[2].lower(), -1) - 1
-                coluna = palavras_para_numeros.get(palavras[4].lower(), -1) - 1
-                print(f"Posição interpretada: linha={linha}, coluna={coluna}")
-                if 0 <= linha < 8 and 0 <= coluna < 8:
-                    peca = self.tabuleiro[linha][coluna]
-                    print(f"Valor da peça na posição: {peca}")
-                    if peca != 0:
-                        nova_linha = linha - 1 if peca == 1 else linha + 1
-                        print(f"Tentando mover para linha {nova_linha}, coluna {coluna}")
-                        if 0 <= nova_linha < 8 and self.tabuleiro[nova_linha][coluna] == 0:
-                            self.tabuleiro[nova_linha][coluna] = peca
-                            self.tabuleiro[linha][coluna] = 0
+                row = words_to_numbers.get(words[2].lower(), -1) - 1
+                col = words_to_numbers.get(words[4].lower(), -1) - 1
+                print(f"Posição interpretada: linha={row}, coluna={col}")
+                if 0 <= row < 8 and 0 <= col < 8:
+                    piece = self.board[row][col]
+                    print(f"Valor da peça na posição: {piece}")
+                    if piece != 0:
+                        new_row = row - 1 if piece == 1 else row + 1
+                        print(f"Tentando mover para linha {new_row}, coluna {col}")
+                        if 0 <= new_row < 8 and self.board[new_row][col] == 0:
+                            self.board[new_row][col] = piece
+                            self.board[row][col] = 0
                             print("Movimento realizado com sucesso")
                         else:
                             print("Nova posição inválida ou ocupada")
@@ -75,7 +75,7 @@ class CheckersGame:
         else:
             print("Comando inválido ou mal formatado")
 
-    def rodar_jogo(self):
+    def run_game(self):
         while self.running:
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
