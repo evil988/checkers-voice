@@ -17,7 +17,7 @@ from checkers.rules import (
     apply_move,
     promote_piece,
 )
-from checkers.ai import choose_random_move
+from checkers.opponent import choose_random_move
 from checkers.draw import (
     draw_board,
     WIDTH,
