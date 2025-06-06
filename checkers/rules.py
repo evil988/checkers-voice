@@ -1,85 +1,117 @@
-# checkers/rules.py
+"""Regras básicas de movimentação para o jogo de damas."""
 
-def simple_moves(board, x, y):
-    """
-    Retorna lista de duplas ((x0,y0), (x1,y1)) para movimentos simples (não-captura),
-    considerando se é peça normal (1 ou 2) ou dama (3 ou 4).
-    Tabuleiro é uma lista 8x8.
-    """
-    p = board[y][x]
-    moves = []
-    if p == 1:   # peça vermelha (sobe)
-        direcoes = [(-1, -1), (1, -1)]
-    elif p == 2: # peça azul (desce)
-        direcoes = [(-1, 1), (1, 1)]
-    elif p == 3: # dama vermelha
-        direcoes = [(-1, -1), (1, -1), (-1, 1), (1, 1)]
-    elif p == 4: # dama azul
-        direcoes = [(-1, -1), (1, -1), (-1, 1), (1, 1)]
+from typing import List, Tuple
+
+from .board import (
+    EMPTY,
+    RED_PAWN,
+    BLUE_PAWN,
+    RED_KING,
+    BLUE_KING,
+    BOARD_SIZE,
+)
+
+
+def simple_moves(board: List[List[int]], x: int, y: int) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
+    """Calcula movimentos simples (sem captura) para a peça em ``(x, y)``."""
+
+    piece = board[y][x]
+    moves: List[Tuple[Tuple[int, int], Tuple[int, int]]] = []
+
+    # Determina as direções possíveis conforme o tipo da peça
+    if piece == RED_PAWN:  # Peça vermelha move para cima
+        directions = [(-1, -1), (1, -1)]
+    elif piece == BLUE_PAWN:  # Peça azul move para baixo
+        directions = [(-1, 1), (1, 1)]
+    elif piece in (RED_KING, BLUE_KING):  # Damas movem-se em todas as diagonais
+        directions = [(-1, -1), (1, -1), (-1, 1), (1, 1)]
     else:
-        return []
+        return []  # Casa vazia ou valor inválido
 
-    for dx, dy in direcoes:
+    for dx, dy in directions:
         nx, ny = x + dx, y + dy
-        if 0 <= nx < 8 and 0 <= ny < 8 and board[ny][nx] == 0:
+        if (
+            0 <= nx < BOARD_SIZE
+            and 0 <= ny < BOARD_SIZE
+            and board[ny][nx] == EMPTY
+        ):
             moves.append(((x, y), (nx, ny)))
+
     return moves
 
-def capture_moves(board, x, y):
-    """
-    Retorna lista de duplas ((x0,y0),(x2,y2)) correspondentes a capturas:
-    verifica se há peça adversária no meio e casa final livre.
-    """
-    p = board[y][x]
-    captures = []
-    if p in (1, 2):
-        dir_y = -1 if p == 1 else 1
-        poss = [(-2, 2 * dir_y), (2, 2 * dir_y)]
-        for dx, dy in poss:
+
+def capture_moves(board: List[List[int]], x: int, y: int) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
+    """Calcula e retorna as capturas possíveis para a peça em ``(x, y)``."""
+
+    piece = board[y][x]
+    captures: List[Tuple[Tuple[int, int], Tuple[int, int]]] = []
+
+    if piece in (RED_PAWN, BLUE_PAWN):
+        # Peças normais só capturam em uma direção vertical
+        dir_y = -1 if piece == RED_PAWN else 1
+        possibilities = [(-2, 2 * dir_y), (2, 2 * dir_y)]
+        for dx, dy in possibilities:
             nx, ny = x + dx, y + dy
             mx, my = x + dx // 2, y + dy // 2
-            if 0 <= nx < 8 and 0 <= ny < 8:
-                if board[my][mx] != 0 and (board[my][mx] % 2) != (p % 2) and board[ny][nx] == 0:
-                    captures.append(((x, y), (nx, ny)))
-    elif p in (3, 4):  # dama
+            if (
+                0 <= nx < BOARD_SIZE
+                and 0 <= ny < BOARD_SIZE
+                and board[ny][nx] == EMPTY
+                and board[my][mx] != EMPTY
+                and (board[my][mx] % 2) != (piece % 2)
+            ):
+                captures.append(((x, y), (nx, ny)))
+
+    elif piece in (RED_KING, BLUE_KING):
+        # Damas capturam em qualquer diagonal
         for dx, dy in [(-2, -2), (-2, 2), (2, -2), (2, 2)]:
             nx, ny = x + dx, y + dy
             mx, my = x + dx // 2, y + dy // 2
-            if 0 <= nx < 8 and 0 <= ny < 8:
-                if board[my][mx] != 0 and (board[my][mx] % 2) != (p % 2) and board[ny][nx] == 0:
-                    captures.append(((x, y), (nx, ny)))
+            if (
+                0 <= nx < BOARD_SIZE
+                and 0 <= ny < BOARD_SIZE
+                and board[ny][nx] == EMPTY
+                and board[my][mx] != EMPTY
+                and (board[my][mx] % 2) != (piece % 2)
+            ):
+                captures.append(((x, y), (nx, ny)))
+
     return captures
 
-def apply_move(board, origin, destination):
-    """
-    Executa movimento simples ou captura.
-    Retorna True se houve captura (para possivelmente continuar múltipla captura), caso contrário False.
-    """
+
+def apply_move(board: List[List[int]], origin: Tuple[int, int], destination: Tuple[int, int]) -> bool:
+    """Aplica um movimento e retorna ``True`` se for captura."""
+
     x0, y0 = origin
     x1, y1 = destination
-    p = board[y0][x0]
-    # Verifica se é movimento de captura
+    piece = board[y0][x0]
+
+    # Verifica se o deslocamento corresponde a uma captura
     if abs(x1 - x0) == 2 and abs(y1 - y0) == 2:
         mx, my = (x0 + x1) // 2, (y0 + y1) // 2
-        board[my][mx] = 0  # remoção da peça capturada
-        board[y1][x1] = p
-        board[y0][x0] = 0
+        board[my][mx] = EMPTY  # remove peça capturada
+        board[y1][x1] = piece
+        board[y0][x0] = EMPTY
         return True
-    else:
-        # Movimento simples
-        board[y1][x1] = p
-        board[y0][x0] = 0
-        return False
 
-def promote_piece(board, x, y):
-    """
-    Se a peça (1 ou 2) alcançou a última linha, promove para dama (3 ou 4).
-    """
-    p = board[y][x]
-    if p == 1 and y == 0:
-        board[y][x] = 3
-        return True
-    if p == 2 and y == 7:
-        board[y][x] = 4
-        return True
+    # Movimento simples
+    board[y1][x1] = piece
+    board[y0][x0] = EMPTY
     return False
+
+
+def promote_piece(board: List[List[int]], x: int, y: int) -> bool:
+    """Promove a peça para dama caso alcance a borda do tabuleiro."""
+
+    piece = board[y][x]
+
+    if piece == RED_PAWN and y == 0:
+        board[y][x] = RED_KING
+        return True
+
+    if piece == BLUE_PAWN and y == BOARD_SIZE - 1:
+        board[y][x] = BLUE_KING
+        return True
+
+    return False
+
