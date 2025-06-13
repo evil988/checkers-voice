@@ -34,7 +34,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. Baixe um modelo Vosk e extraia para `assets/model/`. Modelos disponíveis em:
+4. Baixe o modelo de voz em português do Brasil do Vosk (por exemplo,
+`vosk-model-small-pt-0.3`) e extraia o conteúdo em `assets/model/`. Caso a
+ pasta ainda não exista, crie-a. Os modelos de voz estão disponíveis em:
 [https://alphacephei.com/vosk/models](https://alphacephei.com/vosk/models)
 
 5. Execute o jogo com controle por voz:
