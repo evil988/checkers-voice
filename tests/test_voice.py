@@ -1,80 +1,69 @@
+"""Pequeno utilitário para testar reconhecimento de voz isoladamente."""
+
 import os
 import sys
-import json
-import pyaudio
-from vosk import Model, KaldiRecognizer
+import ast
+from pathlib import Path
 
-# =========================
-# Configuração das frases válidas
-# =========================
-numbers = ['um', 'dois', 'tres', 'quatro', 'cinco', 'seis', 'sete', 'oito']
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-valid_phrases = []
-for row in numbers:
-    for col in numbers:
-        valid_phrases.append(f"linha {row} coluna {col}")
 
-grammar = json.dumps(valid_phrases)
+def load_voice_commands() -> list[str]:
+    """Retorna a lista de comandos de voz definidos no projeto."""
+    path = Path(__file__).resolve().parent.parent / "menu" / "menu.py"
+    tree = ast.parse(path.read_text(), filename=str(path))
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id == "VOICE_COMMANDS":
+                    return ast.literal_eval(node.value)
+    return []
 
-# =========================
-# Caminho do modelo Vosk
-# =========================
-model_path = os.path.join("assets", "model")
-if not os.path.exists(model_path):
-    print("Modelo Vosk não encontrado. Coloque-o em 'assets/model'")
-    sys.exit(1)
 
-# =========================
-# Inicialização do Vosk e Microfone
-# =========================
-model = Model(model_path)
-recognizer = KaldiRecognizer(model, 16000, grammar)
+VOICE_COMMANDS = load_voice_commands()
+from speech.commands import CommandParser
+from speech.recognizer import SpeechRecognizer
 
-audio = pyaudio.PyAudio()
-stream = audio.open(format=pyaudio.paInt16,
-                    channels=1,
-                    rate=16000,
-                    input=True,
-                    frames_per_buffer=8192)
-stream.start_stream()
 
-# =========================
-# Função reutilizável para reconhecimento de voz
-# =========================
-def escutar_comando():
-    data = stream.read(8192, exception_on_overflow=False)
-    if recognizer.AcceptWaveform(data):
-        result = json.loads(recognizer.Result())
-        text = result.get("text", "").strip()
-        if text:
-            print("🎧 Frase capturada:", text)
-            words = text.split()
-            if len(words) != 4:
-                print("⚠️ Frase ignorada (formato inválido, esperado 4 palavras):", words)
-                return None
-            if words[0] != "linha" or words[2] != "coluna":
-                print("⚠️ Frase ignorada (estrutura esperada: 'linha X coluna Y')")
-                return None
-            if words[1] not in numbers or words[3] not in numbers:
-                print("⚠️ Frase ignorada (números não reconhecidos):", words[1], words[3])
-                return None
-            print("✅ Frase válida detectada")
-            return text
-    return None
+def build_grammar() -> list[str]:
+    """Retorna a lista completa de comandos reconhecíveis."""
+    parser = CommandParser()
+    numbers = parser.numbers
 
-# =========================
-# Execução autônoma para testes
-# =========================
-if __name__ == "__main__":
-    print("Fale algo como 'linha um coluna dois'...")
+    move_cmds = [f"linha {r} coluna {c}" for r in numbers for c in numbers]
+    extras = ["cancelar", "reiniciar", "voltar ao menu principal"]
+
+    return move_cmds + extras + VOICE_COMMANDS
+
+
+def main() -> None:
+    grammar = build_grammar()
+    recognizer = SpeechRecognizer(grammar)
+    parser = CommandParser()
+
+    print("Fale um comando reconhecido (ex: 'linha um coluna dois')")
     try:
         while True:
-            comando = escutar_comando()
-            if comando:
-                print("✅ Comando reconhecido:", comando)
+            text = recognizer.read_audio()
+            if not text:
+                continue
+
+            print("🎧 Texto capturado:", text)
+            cmd_menu = parser.parse_menu(text)
+            if cmd_menu:
+                print("✅ Comando de menu:", cmd_menu)
+                continue
+
+            cmd_move = parser.parse_move(text)
+            if isinstance(cmd_move, tuple):
+                print("✅ Movimento:", cmd_move)
+            elif cmd_move in ("cancelar", "reiniciar", "voltar ao menu principal"):
+                print("✅ Comando especial:", cmd_move)
     except KeyboardInterrupt:
-        print("\nEncerrando reconhecimento de voz.")
+        print("\nEncerrando reconhecimento.")
     finally:
-        stream.stop_stream()
-        stream.close()
-        audio.terminate()
+        recognizer.close()
+
+
+if __name__ == "__main__":
+    main()
