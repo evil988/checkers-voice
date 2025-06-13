@@ -1,6 +1,13 @@
 # 🎮 Checkers Voice Project
 
-Este projeto aplica **reconhecimento de voz ao jogo de damas** com o objetivo de torná-lo acessível para pessoas com deficiência motora.
+Este projeto propõe um jogo de damas acessível controlado por voz.
+Ele utiliza a biblioteca Vosk para reconhecimento de fala totalmente offline,
+permitindo a execução em um Raspberry Pi 3 sem depender da internet.
+A interface em Pygame foi desenvolvida com foco em acessibilidade e
+oferece controle redundante por mouse e voz. O projeto contribui com a
+pesquisa em jogos acessíveis e abre espaço para melhorias futuras, como
+feedback auditivo, oponente mais sofisticado e estudos com usuários
+reais.
 
 ## 🧠 Tecnologias utilizadas
 
@@ -48,19 +55,6 @@ python src/main.py
 - Cancela seleção com o comando "cancelar"
 - Validação visual com destaque colorido
 - Feedback textual no terminal
-
-## 📁 Estrutura
-
-```
-checkers-voice/
-├── src/main.py              # Módulo principal
-├── checkers/                # Regras e desenho do tabuleiro
-├── menu/                    # Menu principal por voz
-├── speech/                  # Reconhecimento de fala
-├── assets/model/            # Modelo Vosk (baixar separadamente)
-├── tests/                   # Testes unitários
-└── requirements.txt
-```
 
 ---
 
