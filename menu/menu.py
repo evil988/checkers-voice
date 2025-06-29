@@ -22,13 +22,14 @@ MENU_TEXTS = ['1 Jogador', '2 Jogadores', 'Sair']
 # Comandos válidos reconhecidos pelo Vosk
 VOICE_COMMANDS = ['um jogador', 'dois jogadores', 'sair']
 
-def init_menu_recognizer():
+def init_menu_recognizer(model_path=None):
     """Inicializa o reconhecedor de voz para os comandos do menu."""
-    path = os.path.join('assets', 'model')
-    if not os.path.isdir(path):
+    if model_path is None:
+        model_path = os.environ.get('VOSK_MODEL_PATH', os.path.join('assets', 'model'))
+    if not os.path.isdir(model_path):
         sys.exit(1)
 
-    model = Model(path)
+    model = Model(model_path)
     grammar = json.dumps(VOICE_COMMANDS)
     return KaldiRecognizer(model, 16000, grammar)
 
@@ -86,7 +87,7 @@ def show_menu():
     pygame.display.set_caption('Damas - Menu')
     font = pygame.font.SysFont(None, 60)
 
-    recognizer = init_menu_recognizer()
+    recognizer = init_menu_recognizer(os.environ.get('VOSK_MODEL_PATH'))
     pa = pyaudio.PyAudio()
     stream = open_audio_stream(pa)
 
