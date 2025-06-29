@@ -44,6 +44,15 @@ pip install -r requirements.txt
 python src/main.py
 ```
 
+## 🧪 Executar testes
+
+Instale a dependência de testes e rode o `pytest` a partir do diretório do projeto:
+
+```bash
+pip install pytest
+pytest
+```
+
 ## 🎯 Comandos de voz aceitos
 
 - `linha três coluna quatro` → destaca a casa (3,4)
