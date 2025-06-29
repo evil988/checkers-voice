@@ -58,6 +58,10 @@ python src/main.py
 - Validação visual com destaque colorido
 - Feedback textual no terminal
 
+## 📄 Licença
+
+Distribuído sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE) para mais informações.
+
 ---
 
 Desenvolvido por [evil988](https://github.com/evil988)
