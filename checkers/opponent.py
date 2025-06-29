@@ -2,13 +2,13 @@
 """Funções relacionadas aos movimentos do adversário controlado pelo computador."""
 
 import random
-from typing import List, Tuple, Optional
+from typing import Optional
 
 from .board import BLUE_PAWN, BLUE_KING, BOARD_SIZE
 from .rules import simple_moves, capture_moves
 
 
-def choose_random_move(board: List[List[int]]) -> Optional[Tuple[Tuple[int, int], Tuple[int, int], bool]]:
+def choose_random_move(board: list[list[int]]) -> Optional[tuple[tuple[int, int], tuple[int, int], bool]]:
     """Seleciona um movimento aleatório para o jogador azul.
 
     Percorre todas as peças azuis (``BLUE_PAWN`` e ``BLUE_KING``) em busca de
@@ -18,7 +18,7 @@ def choose_random_move(board: List[List[int]]) -> Optional[Tuple[Tuple[int, int]
     Retorna uma tupla ``(origem, destino, houve_captura)``.
     """
 
-    moves: list[tuple[tuple[Tuple[int, int], Tuple[int, int]], bool]] = []
+    moves: list[tuple[tuple[tuple[int, int], tuple[int, int]], bool]] = []
     blue_pieces = [BLUE_PAWN, BLUE_KING]
 
     # Percorre o tabuleiro em busca de peças azuis
