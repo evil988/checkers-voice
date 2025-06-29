@@ -38,6 +38,8 @@ pip install -r requirements.txt
 `vosk-model-small-pt-0.3`) e extraia o conteúdo em `assets/model/`. Caso a
  pasta ainda não exista, crie-a. Os modelos de voz estão disponíveis em:
 [https://alphacephei.com/vosk/models](https://alphacephei.com/vosk/models)
+   - Se o modelo estiver em outro diretório, defina a variável de ambiente
+     `VOSK_MODEL_PATH` apontando para o caminho desejado antes de iniciar o jogo.
 
 5. Execute o jogo com controle por voz:
 ```bash
