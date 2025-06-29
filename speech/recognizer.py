@@ -10,11 +10,15 @@ class SpeechRecognizer:
     Encapsula a inicialização do Vosk e captura de pacotes de áudio.
     """
 
-    def __init__(self, grammar_list):
+    def __init__(self, grammar_list, model_path=None):
         """
         grammar_list: lista de strings reconhecíveis (ex.: ['linha um coluna dois', ...])
+        model_path: caminho para a pasta do modelo Vosk. Se ``None``, será
+            utilizado o valor da variável de ambiente ``VOSK_MODEL_PATH`` ou
+            ``assets/model`` como padrão.
         """
-        model_path = os.path.join('assets', 'model')
+        if model_path is None:
+            model_path = os.environ.get("VOSK_MODEL_PATH", os.path.join('assets', 'model'))
         if not os.path.isdir(model_path):
             raise FileNotFoundError(f"Modelo Vosk não encontrado em {model_path}")
 
