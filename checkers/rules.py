@@ -1,6 +1,6 @@
 """Regras básicas de movimentação para o jogo de damas."""
 
-from typing import List, Tuple
+
 
 from .board import (
     EMPTY,
@@ -12,11 +12,11 @@ from .board import (
 )
 
 
-def simple_moves(board: List[List[int]], x: int, y: int) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
+def simple_moves(board: list[list[int]], x: int, y: int) -> list[tuple[tuple[int, int], tuple[int, int]]]:
     """Calcula movimentos simples (sem captura) para a peça em ``(x, y)``."""
 
     piece = board[y][x]
-    moves: List[Tuple[Tuple[int, int], Tuple[int, int]]] = []
+    moves: list[tuple[tuple[int, int], tuple[int, int]]] = []
 
     # Determina as direções possíveis conforme o tipo da peça
     if piece == RED_PAWN:  # Peça vermelha move para cima
@@ -40,11 +40,11 @@ def simple_moves(board: List[List[int]], x: int, y: int) -> List[Tuple[Tuple[int
     return moves
 
 
-def capture_moves(board: List[List[int]], x: int, y: int) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
+def capture_moves(board: list[list[int]], x: int, y: int) -> list[tuple[tuple[int, int], tuple[int, int]]]:
     """Calcula e retorna as capturas possíveis para a peça em ``(x, y)``."""
 
     piece = board[y][x]
-    captures: List[Tuple[Tuple[int, int], Tuple[int, int]]] = []
+    captures: list[tuple[tuple[int, int], tuple[int, int]]] = []
 
     if piece in (RED_PAWN, BLUE_PAWN):
         # Peças normais só capturam em uma direção vertical
@@ -79,7 +79,7 @@ def capture_moves(board: List[List[int]], x: int, y: int) -> List[Tuple[Tuple[in
     return captures
 
 
-def apply_move(board: List[List[int]], origin: Tuple[int, int], destination: Tuple[int, int]) -> bool:
+def apply_move(board: list[list[int]], origin: tuple[int, int], destination: tuple[int, int]) -> bool:
     """Aplica um movimento e retorna ``True`` se for captura."""
 
     x0, y0 = origin
@@ -100,7 +100,7 @@ def apply_move(board: List[List[int]], origin: Tuple[int, int], destination: Tup
     return False
 
 
-def promote_piece(board: List[List[int]], x: int, y: int) -> bool:
+def promote_piece(board: list[list[int]], x: int, y: int) -> bool:
     """Promove a peça para dama caso alcance a borda do tabuleiro."""
 
     piece = board[y][x]
