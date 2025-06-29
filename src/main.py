@@ -35,7 +35,8 @@ class VoiceMouseControlledCheckers:
 
         numbers = ['um','dois','tres','quatro','cinco','seis','sete','oito']
         phrases = [f'linha {l} coluna {c}' for l in numbers for c in numbers] + ['cancelar','reiniciar','voltar ao menu principal']
-        self.speech_recognizer = SpeechRecognizer(phrases)
+        model_path = os.environ.get('VOSK_MODEL_PATH')
+        self.speech_recognizer = SpeechRecognizer(phrases, model_path=model_path)
         self.cmd_parser = CommandParser()
 
         pygame.init()
