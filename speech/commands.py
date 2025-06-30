@@ -1,12 +1,25 @@
 # speech/commands.py
 
+"""Parsers and constants used by the voice command system."""
+
+# Words representing board coordinates.
+NUMBER_WORDS = [
+    "um",
+    "dois",
+    "tres",
+    "quatro",
+    "cinco",
+    "seis",
+    "sete",
+    "oito",
+]
+
+
 class CommandParser:
-    """
-    Interpreta texto bruto do Vosk em ações do jogo.
-    """
+    """Interpreta texto bruto do Vosk em ações do jogo."""
 
     def __init__(self):
-        self.numbers = ['um', 'dois', 'tres', 'quatro', 'cinco', 'seis', 'sete', 'oito']
+        self.numbers = NUMBER_WORDS
 
     def parse_menu(self, text):
         """
