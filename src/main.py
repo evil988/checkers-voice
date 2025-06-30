@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from menu.menu import show_menu
 from speech.recognizer import SpeechRecognizer
-from speech.commands import CommandParser
+from speech.commands import CommandParser, NUMBER_WORDS
 from checkers.board import Board
 from checkers.rules import (
     simple_moves,
@@ -33,8 +33,11 @@ class VoiceMouseControlledCheckers:
         self.highlighted_pos = None
         self.running = True
 
-        numbers = ['um','dois','tres','quatro','cinco','seis','sete','oito']
-        phrases = [f'linha {l} coluna {c}' for l in numbers for c in numbers] + ['cancelar','reiniciar','voltar ao menu principal']
+        phrases = [
+            f"linha {l} coluna {c}"
+            for l in NUMBER_WORDS
+            for c in NUMBER_WORDS
+        ] + ["cancelar", "reiniciar", "voltar ao menu principal"]
         model_path = os.environ.get('VOSK_MODEL_PATH')
         self.speech_recognizer = SpeechRecognizer(phrases, model_path=model_path)
         self.cmd_parser = CommandParser()
