@@ -2,7 +2,7 @@
 
 Este projeto propõe um jogo de damas acessível controlado por voz.
 Ele utiliza a biblioteca Vosk para reconhecimento de fala totalmente offline,
-permitindo a execução em um Raspberry Pi 3 sem depender da internet.
+permitindo a execução local sem depender da internet.
 A interface em Pygame foi desenvolvida com foco em acessibilidade e
 oferece controle redundante por mouse e voz. O projeto contribui com a
 pesquisa em jogos acessíveis e abre espaço para melhorias futuras, como
